@@ -20,6 +20,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ATMApplication.Models;
+using AutoMapper;
+using ATMApplication.Mapping;
+using System.Text.Json.Serialization;
 
 namespace ATMApplication
 {
@@ -39,9 +42,9 @@ namespace ATMApplication
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ATMApplication", Version = "v1" });
-                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = "Standard Authorization header using the Bearer scheme. Example: \"bearer {token}\"",
+                    Description = "Standard Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
                     In = ParameterLocation.Header,
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
@@ -55,17 +58,33 @@ namespace ATMApplication
                 ServiceLifetime.Scoped
             );
 
+            // Enum будут отображаться их именами (не цифрами)
+            services.AddMvc().AddJsonOptions(opts =>
+            {
+                var enumConverter = new JsonStringEnumConverter();
+                opts.JsonSerializerOptions.Converters.Add(enumConverter);
+            });
+
             services.AddTransient<ISecurityService, SecurityService>();
             services.AddTransient<IDbService, SQLServerService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ICookieService, CookieService>();
+            services.AddTransient<ICardService, CardService>();
+            services.AddTransient<IBankService, MyBankService>();
             services.AddScoped<IRepositoryFactory, RepositoryFactory>();
 
             services.AddHttpClient();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
                 .AddJwtBearer(options =>
                 {
+                    options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
@@ -74,11 +93,15 @@ namespace ATMApplication
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = Configuration["Jwt:Issuer"],
                         ValidAudience = Configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Secret"]))
                     };
                 });
-            services.AddTransient<ICardService, CardService>();
-            services.AddTransient<IBankService, MyBankService>();
+
+            services.AddSingleton(provider => new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new MappingProfile(provider.GetService<ISecurityService>()));
+            })
+            .CreateMapper());
 
         }
 
@@ -94,9 +117,8 @@ namespace ATMApplication
 
             app.UseHttpsRedirection();
 
-            app.UseRouting();
-
             app.UseAuthentication();
+            app.UseRouting();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

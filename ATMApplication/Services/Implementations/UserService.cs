@@ -14,6 +14,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Logging;
+using ATMApplication.Validation;
+using AutoMapper;
 
 namespace ATMApplication.Services
 {
@@ -25,96 +27,85 @@ namespace ATMApplication.Services
         IRepositoryFactory RepositoryFactory { get; init; }
         ICookieService CookieService { get; init; }
         ILogger Logger { get; init; }
+        IMapper Mapper { get; init; }
 
         public UserService(IRepositoryFactory repositoryFactory,
                            IDbService dbService,
                            ISecurityService securityService,
                            IConfiguration configuration,
                            ICookieService cookieService,
-                           ILogger logger)
+                           IMapper mapper)
         {
             RepositoryFactory = repositoryFactory;
             DbService = dbService;
             SecurityService = securityService;
             Configuration = configuration;
             CookieService = cookieService;
-            Logger = logger;
+            Logger  = null;
+            Mapper  = mapper;
         }
 
-        public async Task<(bool HasErrors, List<(string Key, string Message)> ErrorMessages)> RegisterUser(RegisterEditModel registerModel)
+        public async Task<ValidationResult> RegisterUser(RegisterEditModel registerModel)
         {
             return await RegisterUser(registerModel, SecurityService);
         }
 
-        public async Task<(bool HasErrors, List<(string Key, string Message)> ErrorMessages)> RegisterUser(RegisterEditModel registerModel,
-                                                                                                           ISecurityService securityService)
+        public async Task<ValidationResult> RegisterUser(
+            RegisterEditModel registerModel,
+            ISecurityService securityService
+            )
         {
-            (bool HasErrors, List<(string Key, string Message)> ErrorMessages) result = new();
-            result.ErrorMessages = new List<(string Key, string Message)>();
+            var validationResult = await ValidateRegisterModel(registerModel);
+
+            if (validationResult.HasErrors)
+            {
+                return validationResult;
+            }
+
+            var user = Mapper.Map<User>(registerModel);
 
             var UserRepository = RepositoryFactory.GetRepository<User>();
+            await UserRepository.AddAsync(user);
 
-            // Существует ли пользователь с таким логином
-            if (await UserRepository.GetAsync(user => user.Login == registerModel.Login) != null)
-            {
-                result.ErrorMessages.Add(("Login", "Логин уже используется"));
-            }
-            else if (await UserRepository.GetAsync(user => user.Email == registerModel.Email) != null)
-            {
-                result.ErrorMessages.Add(("Email", "Email уже используется"));
-            }
-            else
-            {
-                User user = registerModel.ToUser(securityService);
-
-                await UserRepository.AddAsync(user);
-            }
-            result.HasErrors = result.ErrorMessages.Count > 0;
-
-            return result;
+            return validationResult;
         }
 
-        public async Task<(bool HasErrors, List<(string Key, string Message)> ErrorMessages, string Token)> SignInUser(string userLogin,
-                                                                                                         string userPassword)
+        public async Task<(ValidationResult ValidationResult, string Token)> SignInUser(LoginEditModel loginModel)
         {
-            return await SignInUser(userLogin, userPassword, SecurityService);
+            return await SignInUser(loginModel, SecurityService);
         }
 
-        public async Task<(bool HasErrors, List<(string Key, string Message)> ErrorMessages, string Token)> SignInUser(string userLogin,
-                                                                                                         string userPassword,
-                                                                                                         ISecurityService securityService)
+        public async Task<(ValidationResult ValidationResult, string Token)> SignInUser(
+            LoginEditModel loginModel,
+            ISecurityService securityService
+            )
         {
-            (bool HasErrors, List<(string Key, string Message)> ErrorMessages, string Token) result = new();
-            result.ErrorMessages = new List<(string Key, string Message)>();
+            (var validationResult, var validUser) = await ValidateLoginModel(loginModel, securityService);
 
-            var UserRepository = RepositoryFactory.GetRepository<User>();
-            User validUser;
-
-            try
+            if (validationResult.HasErrors)
             {
-                validUser = (await UserRepository.GetAsync(user => user.Login == userLogin)).Single();
-            }
-            catch
-            {
-                throw;
+                return (validationResult, string.Empty);
             }
 
-            var token = string.Empty;
+            var token = GenerateJSONWebToken(validUser);
 
-            // Если в базе нет пользователя с такими логином и паролем
-            if (validUser == null || !securityService.ValidatePassword(userPassword, validUser?.PasswordHash))
+            return (validationResult, token);
+        }
+
+        public async Task<(ValidationResult ValidationResult, string Token)> SignInUser(string login, string password)
+        {
+            return await SignInUser(login, password, SecurityService);
+        }
+
+        public async Task<(ValidationResult ValidationResult, string Token)> SignInUser(string login, string password, ISecurityService securityService)
+        {
+            var loginModel = new LoginEditModel
             {
-                result.ErrorMessages.Add(("", "Неверно введен логин или пароль"));
-            }
-            else
-            {
-                token = GenerateJSONWebToken(validUser);
-            }
+                Login = login,
+                Password = password
+            };
 
-            result.HasErrors = result.ErrorMessages.Count > 0;
-            result.Token = token;
-
-            return result;
+            return await SignInUser(loginModel, securityService);
         }
 
         public async Task LogoutUser(HttpContext context)
@@ -136,7 +127,7 @@ namespace ATMApplication.Services
             }
             catch (RepositoryException ex)
             {
-                Logger.LogError(ex.FullMessage);
+                Logger?.LogError(ex.FullMessage);
             }
 
             return user;
@@ -151,7 +142,7 @@ namespace ATMApplication.Services
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Exception: {ex.Message}");
+                Logger?.LogError($"Exception: {ex.Message}");
                 throw;
             }
         }
@@ -168,7 +159,7 @@ namespace ATMApplication.Services
             }
             catch (RepositoryException ex)
             {
-                Logger.LogError(ex.FullMessage);
+                Logger?.LogError(ex.FullMessage);
             }
 
             return user.PasswordHash.Equals(SecurityService.GetPasswordHash(password));
@@ -185,7 +176,7 @@ namespace ATMApplication.Services
             }
             catch (RepositoryException ex)
             {
-                Logger.LogError(ex.FullMessage);
+                Logger?.LogError(ex.FullMessage);
                 return;
             }
 
@@ -213,6 +204,55 @@ namespace ATMApplication.Services
               signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private async Task<ValidationResult> ValidateRegisterModel(IUserValidationModel model)
+        {
+            var result = new ValidationResult();
+
+            var UserRepository = RepositoryFactory.GetRepository<User>();
+
+            // Существует ли пользователь с таким логином
+            if ((await UserRepository.GetAsync(user => user.Login == model.GetLogin())).Count() > 0)
+            {
+                result.AddMessage(nameof(User.Login), "Логин уже используется");
+            }
+
+            // Существует ли пользователь с таким Email
+            if ((await UserRepository.GetAsync(user => user.Email == model.GetEmail())).Count() > 0)
+            {
+                result.AddMessage(nameof(User.Email), "Email уже используется");
+            }
+
+            // Существует ли пользователь с таким телефонным номером
+            if ((await UserRepository.GetAsync(user => user.PhoneNumber == model.GetPhoneNumber())).Count() > 0)
+            {
+                result.AddMessage(nameof(User.PhoneNumber), "Телефонный номер уже используется");
+            }
+
+            return result;
+        }
+
+        private async Task<(ValidationResult, User validUser)> ValidateLoginModel(IUserValidationModel model, ISecurityService securityService)
+        {
+            var result = new ValidationResult();
+            var UserRepository = RepositoryFactory.GetRepository<User>();
+            User validUser = null;
+
+            try
+            {
+                validUser = (await UserRepository.GetAsync(user => user.Login == model.GetLogin())).Single();
+            }
+            catch
+            { }
+
+            // Если в базе нет пользователя с такими логином и паролем
+            if (validUser == null || !securityService.ValidatePassword(model.GetPassword(), validUser?.PasswordHash))
+            {
+                result.AddCommonMessage("Неверно введен логин или пароль");
+            }
+
+            return (result, validUser);
         }
     }
 }

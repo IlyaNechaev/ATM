@@ -15,7 +15,8 @@ namespace ATMApplication.Models
         public ulong CardNumber { get; set; }
         public DateTime MonthYear { get; set; }
         public string OwnerName { get; set; }
-        public string Hash { get; set; }
+        public string HashPin { get; set; }
+        public string HashCVV { get; set; }
         public CardType CardType { get; set; }
         public User Owner { get; set; }
     }

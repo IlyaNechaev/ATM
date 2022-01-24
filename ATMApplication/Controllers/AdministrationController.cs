@@ -14,8 +14,7 @@ using Newtonsoft.Json;
 
 namespace ATMApplication.Controllers
 {
-    [ApiController]
-    public class AdministrationController : ControllerBase
+    public class AdministrationController : Controller
     {
         IUserService UserService;
         IRepositoryFactory RepositoryFactory;
@@ -43,12 +42,19 @@ namespace ATMApplication.Controllers
             if (registerResult.HasErrors)
             {
                 // Добавить все ошибки в ModelState
-                registerResult.ErrorMessages.ForEach(error => ModelState.AddModelError(error.Key, error.Message));
+                foreach (var kvp in registerResult.ErrorMessages)
+                {
+                    foreach (var message in kvp.Value)
+                    {
+                        ModelState.AddModelError(kvp.Key, message);
+                    }
+                }
 
                 return BadRequest(ModelState);
             }
 
-            (_, _, var token) = await UserService.SignInUser(model.Login, model.Password);
+            // Аутентификация пользователя
+            (_, var token) = await UserService.SignInUser(model.Login, model.Password);
 
             return Ok(new { Token = token });
         }
@@ -57,26 +63,28 @@ namespace ATMApplication.Controllers
         public async Task<ActionResult<string>> Login(LoginEditModel model)
         {
             // Проверяем, присутствуют ли в моделе ошибки
-            if (ModelState.IsValid)
-            {
-                var result = await UserService.SignInUser(model.Login, model.Password);
-
-                // Если во время аутентификации были получены ошибки
-                if (result.HasErrors)
-                {
-                    // Добавить все ошибки в ModelState
-                    result.ErrorMessages.ForEach(error => ModelState.AddModelError(error.Key, error.Message));
-                    return BadRequest(ModelState);
-                }
-                else
-                {
-                    return Ok(new { token = result.Token });
-                }
-            }
-            else
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            (var validationResult, var token) = await UserService.SignInUser(model.Login, model.Password);
+
+            // Если во время аутентификации были получены ошибки
+            if (validationResult.HasErrors)
+            {
+                // Добавить все ошибки в ModelState
+                foreach (var kvp in validationResult.ErrorMessages)
+                {
+                    foreach (var message in kvp.Value)
+                    {
+                        ModelState.AddModelError(kvp.Key, message);
+                    }
+                }
+                return BadRequest(ModelState);
+            }
+
+            return Ok(new { token = token });
         }
     }
 }

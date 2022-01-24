@@ -13,15 +13,15 @@ namespace ATMApplication.Services
         IRepositoryFactory RepositoryFactory { get; set; }
         ILogger Logger { get; set; }
 
-        public CardService(IRepositoryFactory repositoryFactory,
-                           ILogger logger)
+        public CardService(IRepositoryFactory repositoryFactory)
         {
             RepositoryFactory = repositoryFactory;
-            Logger = logger;
+            Logger = null;
         }
-        public bool ValidateCVV(Card card, string cvv)
+
+        public bool ValidateCard(CardEditModel model)
         {
-            card.
+            throw new NotImplementedException();
         }
 
         public async Task<Card> CreateCardForUser(User user, CardType cardType)
@@ -37,7 +37,7 @@ namespace ATMApplication.Services
             };
         }
 
-        public async Task<Card> GetCard(Guid cardId)
+        public async Task<Card> GetCardById(Guid cardId)
         {
             var cardRepository = RepositoryFactory.GetRepository<Card>();
             Card card = null;
@@ -48,7 +48,7 @@ namespace ATMApplication.Services
             }
             catch (RepositoryException ex)
             {
-                Logger.LogError(ex.FullMessage);
+                Logger?.LogError(ex.FullMessage);
             }
 
             return card;
@@ -79,6 +79,5 @@ namespace ATMApplication.Services
             var date = DateTime.Now.AddYears(4);
             return new DateTime(date.Year, date.Month + 1, 1);
         }
-
     }
 }

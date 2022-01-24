@@ -1,14 +1,17 @@
-﻿using ATMApplication.Services;
+﻿using ATMApplication.Validation;
+using ATMApplication.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json.Converters;
 
 namespace ATMApplication.Models
 {
-    public class RegisterEditModel
+    public class RegisterEditModel : IUserValidationModel
     {
         [DataType(DataType.Text)]
         [Required(ErrorMessage = "Не указано имя")]
@@ -48,39 +51,49 @@ namespace ATMApplication.Models
         public string DateOfBirth { get; set; }
 
         [Required(ErrorMessage = "Не выбран пол")]
-        public string Gender { get; set; }
+        public Gender Gender { get; set; }
 
-        public User ToUser(ISecurityService securityService)
-        {
-            var user = new User();
+        #region IUserValidationModel
+        public string GetLogin() => Login;
 
-            user.FirstName = FirstName;
-            user.MiddleName = MiddleName;
-            user.LastName = LastName;
-            user.Login = Login;
-            user.PasswordHash = securityService.GetPasswordHash(Password);
-            user.Email = Email;
-            user.DateOfBirth = new DateTime(
-                int.Parse(DateOfBirth.Split('.')[2]),
-                int.Parse(DateOfBirth.Split('.')[1]),
-                int.Parse(DateOfBirth.Split('.')[0])
-                );
-            user.Gender = GetGenderDict().GetValueOrDefault(Gender);
-            user.PhoneNumber = PhoneNumber;
+        public string GetPassword() => Password;
 
-            return user;
+        public string GetPhoneNumber() => PhoneNumber;
 
-            // ЛОКАЛЬНАЯ ФУНКЦИЯ
-            // Генерирует словарь (название пола; соответствующее значение в Models.Gender)
-            Dictionary<string, Gender> GetGenderDict()
-            {
-                var genderDict = new Dictionary<string, Gender>();
-                foreach (var gender in Enum.GetValues(typeof(Gender)))
-                {
-                    genderDict.Add(gender.ToString(), (Gender)gender);
-                }
-                return genderDict;
-            }
-        }
+        public string GetEmail() => Email;
+        #endregion
+
+        //public User ToUser(ISecurityService securityService)
+        //{
+        //    var user = new User();
+
+        //    user.FirstName = FirstName;
+        //    user.MiddleName = MiddleName;
+        //    user.LastName = LastName;
+        //    user.Login = Login;
+        //    user.PasswordHash = securityService.GetPasswordHash(Password);
+        //    user.Email = Email;
+        //    user.DateOfBirth = new DateTime(
+        //        int.Parse(DateOfBirth.Split('.')[2]),
+        //        int.Parse(DateOfBirth.Split('.')[1]),
+        //        int.Parse(DateOfBirth.Split('.')[0])
+        //        );
+        //    user.Gender = GetGenderDict().GetValueOrDefault(Gender);
+        //    user.PhoneNumber = PhoneNumber;
+
+        //    return user;
+
+        //    // ЛОКАЛЬНАЯ ФУНКЦИЯ
+        //    // Генерирует словарь (название пола; соответствующее значение в Models.Gender)
+        //    Dictionary<string, Gender> GetGenderDict()
+        //    {
+        //        var genderDict = new Dictionary<string, Gender>();
+        //        foreach (var gender in Enum.GetValues(typeof(Gender)))
+        //        {
+        //            genderDict.Add(gender.ToString(), (Gender)gender);
+        //        }
+        //        return genderDict;
+        //    }
+        //}
     }
 }

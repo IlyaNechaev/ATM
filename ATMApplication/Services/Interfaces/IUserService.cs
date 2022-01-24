@@ -1,4 +1,5 @@
 ﻿using ATMApplication.Models;
+using ATMApplication.Validation;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,18 @@ namespace ATMApplication.Services
     public interface IUserService
     {
         // Регистрация нового пользователя
-        public Task<(bool HasErrors, List<(string Key, string Message)> ErrorMessages)> RegisterUser(RegisterEditModel registerModel);
-        public Task<(bool HasErrors, List<(string Key, string Message)> ErrorMessages)> RegisterUser(RegisterEditModel registerModel, ISecurityService securityService);
+        #region REGISTRATION
+        public Task<ValidationResult> RegisterUser(RegisterEditModel registerModel);
+        public Task<ValidationResult> RegisterUser(RegisterEditModel registerModel, ISecurityService securityService);
+        #endregion
 
         // Вход в систему пользователя по логину и паролю
-        public Task<(bool HasErrors, List<(string Key, string Message)> ErrorMessages, string Token)> SignInUser(string userLogin, string userPassword);
-        public Task<(bool HasErrors, List<(string Key, string Message)> ErrorMessages, string Token)> SignInUser(string userLogin, string userPassword, ISecurityService securityService);
+        #region SIGN_IN
+        public Task<(ValidationResult ValidationResult, string Token)> SignInUser(LoginEditModel loginModel);
+        public Task<(ValidationResult ValidationResult, string Token)> SignInUser(LoginEditModel loginModel, ISecurityService securityService);
+        public Task<(ValidationResult ValidationResult, string Token)> SignInUser(string login, string password);
+        public Task<(ValidationResult ValidationResult, string Token)> SignInUser(string login, string password, ISecurityService securityService);
+        #endregion
 
         public Task LogoutUser(HttpContext context);
 

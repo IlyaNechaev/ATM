@@ -8,10 +8,10 @@ namespace ATMApplication.Services
 {
     public interface ICardService
     {
-        public bool ValidateCVV(Card card, string cvv);
+        public bool ValidateCard(CardEditModel model);
 
         public Task<Card> CreateCardForUser(User user, CardType cardType);
 
-        public Task<Card> GetCard(Guid cardId);
+        public Task<Card> GetCardById(Guid cardId);
     }
 }

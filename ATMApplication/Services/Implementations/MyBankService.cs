@@ -26,6 +26,7 @@ namespace ATMApplication.Services
 
             var UserRepository = RepositoryFactory.GetRepository<User>();
 
+            var phoneNumber = user.PhoneNumber;
             var isPhoneNumberExisted = (await UserRepository.GetAsync(u => u.PhoneNumber.Equals(phoneNumber))).Count() > 0;
             if (isPhoneNumberExisted)
                 throw new ArgumentException($"Телефонный номер {phoneNumber} уже существует");

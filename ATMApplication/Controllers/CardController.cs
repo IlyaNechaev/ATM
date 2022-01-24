@@ -1,51 +1,61 @@
 ﻿using ATMApplication.Extensions;
 using ATMApplication.Services;
-using System.Web.Http;
+using ATMApplication.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
-using Mvc = Microsoft.AspNetCore.Mvc;
-using ATMApplication.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ATMApplication.Data;
+using Microsoft.AspNetCore.Identity;
+using AutoMapper;
 
 namespace ATMApplication.Controllers
 {
     [ApiController]
-    [Mvc.Route("card")]
-    public class CardController : ControllerBase
+    [Route("card")]
+    public class CardController : Controller
     {
         ICardService CardService { get; set; }
         IUserService UserService { get; set; }
+        IRepositoryFactory RepositoryFactory { get; set; }
         public CardController(ICardService cardService,
-                              IUserService userService)
+                              IUserService userService,
+                              IRepositoryFactory repositoryFactory)
         {
             CardService = cardService;
             UserService = userService;
+            RepositoryFactory = repositoryFactory;
         }
 
-        [Mvc.HttpGet("info")]
-        public async Task<HttpResponseMessage> GetCard(Guid cardId)
+        [HttpGet("{cardId}/info")]
+        public async Task<IActionResult> GetCardInfo(string cardId)
         {
-            throw new NotImplementedException();
-        }
-
-        [Mvc.HttpGet("/user/cards")]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<Card>>> GetUserCards()
-        {
-            var u = HttpContext.User;
-            var f = HttpContext.User.GetClaim(ClaimKey.FirstName);
-
-            if (string.IsNullOrEmpty(f))
+            if (!Guid.TryParse(cardId, out var id))
             {
                 return BadRequest();
             }
 
-            var userId = new Guid(HttpContext.User.GetClaim(ClaimKey.Id));
+            var CardRepository = RepositoryFactory.GetRepository<Card>();
 
-            var user = await UserService.GetUserById(userId);
+            var cardInfo = await(CardRepository.GetAsync(card => card.Id.Equals(cardId)));
+
+            throw new NotImplementedException();
+        }
+
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("/user/{userId}/cards")]
+        public async Task<IActionResult> GetUserCards(string userId,
+            [FromServices] IMapper mapper)
+        {
+            if (!Guid.TryParse(userId, out var id))
+            {
+                return BadRequest();
+            }
+
+            var user = await UserService.GetUserById(id);
 
             var cards = new List<Card>
             {
@@ -56,8 +66,7 @@ namespace ATMApplication.Controllers
                     Id = Guid.NewGuid(),
                     Owner = user,
                     MonthYear = DateTime.Now,
-                    OwnerName = $"{user.FirstName} {user.MiddleName}",
-                    Hash = "1"
+                    OwnerName = $"{user.FirstName} {user.MiddleName}"
                 },
                 new Card()
                 {
@@ -66,16 +75,17 @@ namespace ATMApplication.Controllers
                     Id = Guid.NewGuid(),
                     Owner = user,
                     MonthYear = DateTime.Now,
-                    OwnerName = $"{user.FirstName} {user.MiddleName}",
-                    Hash = "2"
+                    OwnerName = $"{user.FirstName} {user.MiddleName}"
                 }
             };
 
-            return cards;
+            var cardViews = mapper.Map<List<Card>, IEnumerable<CardViewModel>>(cards);
+
+            return Ok(cardViews);
         }
 
-        [Mvc.HttpPost("create")]
-        public async Task<HttpResponseMessage> CreateCard()
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateCard(string userId, CardType cardType)
         {
             throw new NotImplementedException();
         }
