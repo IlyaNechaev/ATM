@@ -8,6 +8,6 @@ namespace ATMApplication.Services
 {
     interface IBankService
     {
-        public Task<User> CreateUser(User user);
+        public void TransferMoney(Card source, Card dest);
     }
 }

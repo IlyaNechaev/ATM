@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ATMApplication.Data;
 using Microsoft.AspNetCore.Identity;
 using AutoMapper;
+using ATMApplication.Filters;
 
 namespace ATMApplication.Controllers
 {
@@ -33,6 +34,7 @@ namespace ATMApplication.Controllers
         [HttpGet("{cardId}/info")]
         public async Task<IActionResult> GetCardInfo(string cardId)
         {
+            var user = HttpContext.User;
             if (!Guid.TryParse(cardId, out var id))
             {
                 return BadRequest();
@@ -45,41 +47,23 @@ namespace ATMApplication.Controllers
             throw new NotImplementedException();
         }
 
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [ValidateGuidFormat("userId")]
         [HttpGet("/user/{userId}/cards")]
         public async Task<IActionResult> GetUserCards(string userId,
             [FromServices] IMapper mapper)
         {
-            if (!Guid.TryParse(userId, out var id))
+            IEnumerable<CardViewModel> cardViews = null;
+
+            try
             {
-                return BadRequest();
+                var cards = await CardService.GetUserCards(userId);
+                cardViews = mapper.Map<ICollection<Card>, IEnumerable<CardViewModel>>(cards);
             }
-
-            var user = await UserService.GetUserById(id);
-
-            var cards = new List<Card>
+            catch
             {
-                new Card()
-                {
-                    CardNumber = 1111_2222_3333_4444,
-                    CardType = CardType.DEBIT,
-                    Id = Guid.NewGuid(),
-                    Owner = user,
-                    MonthYear = DateTime.Now,
-                    OwnerName = $"{user.FirstName} {user.MiddleName}"
-                },
-                new Card()
-                {
-                    CardNumber = 1110_2222_3333_4444,
-                    CardType = CardType.CREDIT,
-                    Id = Guid.NewGuid(),
-                    Owner = user,
-                    MonthYear = DateTime.Now,
-                    OwnerName = $"{user.FirstName} {user.MiddleName}"
-                }
-            };
-
-            var cardViews = mapper.Map<List<Card>, IEnumerable<CardViewModel>>(cards);
+                BadRequest("");
+            }
 
             return Ok(cardViews);
         }

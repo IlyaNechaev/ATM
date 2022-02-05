@@ -23,6 +23,8 @@ using ATMApplication.Models;
 using AutoMapper;
 using ATMApplication.Mapping;
 using System.Text.Json.Serialization;
+using ATMApplication.Initial;
+using ATMApplication.Services.Substitute;
 
 namespace ATMApplication
 {
@@ -72,6 +74,12 @@ namespace ATMApplication
             services.AddTransient<ICardService, CardService>();
             services.AddTransient<IBankService, MyBankService>();
             services.AddScoped<IRepositoryFactory, RepositoryFactory>();
+
+            #region SUBSTITUTE_SERVICES
+
+            //services.AddSubstituteService<ICardService>(true);
+
+            #endregion
 
             services.AddHttpClient();
 

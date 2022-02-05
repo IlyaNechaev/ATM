@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ATMApplication.Controllers
 {

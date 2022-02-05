@@ -34,14 +34,15 @@ namespace ATMApplication.Services
                            ISecurityService securityService,
                            IConfiguration configuration,
                            ICookieService cookieService,
-                           IMapper mapper)
+                           IMapper mapper,
+                           ILogger<UserService> logger)
         {
             RepositoryFactory = repositoryFactory;
             DbService = dbService;
             SecurityService = securityService;
             Configuration = configuration;
             CookieService = cookieService;
-            Logger  = null;
+            Logger  = logger;
             Mapper  = mapper;
         }
 
