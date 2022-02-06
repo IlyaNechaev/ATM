@@ -28,6 +28,7 @@ namespace ATMApplication.Services
         ICookieService CookieService { get; init; }
         ILogger Logger { get; init; }
         IMapper Mapper { get; init; }
+        IJwtUtils JwtUtils { get; init; }
 
         public UserService(IRepositoryFactory repositoryFactory,
                            IDbService dbService,
@@ -35,7 +36,8 @@ namespace ATMApplication.Services
                            IConfiguration configuration,
                            ICookieService cookieService,
                            IMapper mapper,
-                           ILogger<UserService> logger)
+                           ILogger<UserService> logger,
+                           IJwtUtils jwtUtils)
         {
             RepositoryFactory = repositoryFactory;
             DbService = dbService;
@@ -44,6 +46,7 @@ namespace ATMApplication.Services
             CookieService = cookieService;
             Logger  = logger;
             Mapper  = mapper;
+            JwtUtils = jwtUtils;
         }
 
         public async Task<ValidationResult> RegisterUser(RegisterEditModel registerModel)
@@ -88,7 +91,7 @@ namespace ATMApplication.Services
                 return (validationResult, string.Empty);
             }
 
-            var token = GenerateJSONWebToken(validUser);
+            var token = JwtUtils.GenerateJSONWebToken(validUser);
 
             return (validationResult, token);
         }
@@ -184,27 +187,6 @@ namespace ATMApplication.Services
             user.PasswordHash = SecurityService.GetPasswordHash(newPassword);
 
             await UserRepository.UpdateAsync(user);
-        }
-
-        private string GenerateJSONWebToken(User user)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var claims = new[] {
-                new Claim(ClaimKey.Login, user.Login),
-                new Claim(ClaimKey.FirstName, user.FirstName),
-                new Claim(ClaimKey.MiddleName, user.MiddleName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            var token = new JwtSecurityToken(Configuration["Jwt:Issuer"],
-              Configuration["Jwt:Issuer"],
-              claims,
-              expires: DateTime.Now.AddMinutes(120),
-              signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         private async Task<ValidationResult> ValidateRegisterModel(IUserValidationModel model)

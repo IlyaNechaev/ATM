@@ -12,6 +12,7 @@ using ATMApplication.Data;
 using Microsoft.AspNetCore.Identity;
 using AutoMapper;
 using ATMApplication.Filters;
+using ATMApplication.Initial.Filters;
 
 namespace ATMApplication.Controllers
 {
@@ -31,6 +32,7 @@ namespace ATMApplication.Controllers
             RepositoryFactory = repositoryFactory;
         }
 
+        [JwtAuthorize]
         [HttpGet("{cardId}/info")]
         public async Task<IActionResult> GetCardInfo(string cardId)
         {
@@ -42,12 +44,12 @@ namespace ATMApplication.Controllers
 
             var CardRepository = RepositoryFactory.GetRepository<Card>();
 
-            var cardInfo = await(CardRepository.GetAsync(card => card.Id.Equals(cardId)));
+            var cardInfo = (await CardRepository.GetAsync(card => card.Id.Equals(cardId)));
 
             throw new NotImplementedException();
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [JwtAuthorize]
         [ValidateGuidFormat("userId")]
         [HttpGet("/user/{userId}/cards")]
         public async Task<IActionResult> GetUserCards(string userId,

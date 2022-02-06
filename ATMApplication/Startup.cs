@@ -73,6 +73,7 @@ namespace ATMApplication
             services.AddTransient<ICookieService, CookieService>();
             services.AddTransient<ICardService, CardService>();
             services.AddTransient<IBankService, MyBankService>();
+            services.AddTransient<IJwtUtils, JwtUtils>();
             services.AddScoped<IRepositoryFactory, RepositoryFactory>();
 
             #region SUBSTITUTE_SERVICES
@@ -83,27 +84,27 @@ namespace ATMApplication
 
             services.AddHttpClient();
 
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-                .AddJwtBearer(options =>
-                {
-                    options.RequireHttpsMetadata = false;
-                    options.SaveToken = true;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = Configuration["Jwt:Issuer"],
-                        ValidAudience = Configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Secret"]))
-                    };
-                });
+            //services.AddAuthentication(x =>
+            //{
+            //    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //})
+            //    .AddJwtBearer(options =>
+            //    {
+            //        options.RequireHttpsMetadata = false;
+            //        options.SaveToken = true;
+            //        options.TokenValidationParameters = new TokenValidationParameters
+            //        {
+            //            ValidateIssuer = true,
+            //            ValidateAudience = true,
+            //            ValidateLifetime = true,
+            //            ValidateIssuerSigningKey = true,
+            //            ValidIssuer = Configuration["Jwt:Issuer"],
+            //            ValidAudience = Configuration["Jwt:Audience"],
+            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Secret"]))
+            //        };
+            //    });
 
             services.AddSingleton(provider => new MapperConfiguration(cfg =>
             {
@@ -125,9 +126,8 @@ namespace ATMApplication
 
             app.UseHttpsRedirection();
 
-            app.UseAuthentication();
             app.UseRouting();
-            app.UseAuthorization();
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
