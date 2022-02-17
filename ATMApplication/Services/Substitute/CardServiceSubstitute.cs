@@ -9,7 +9,7 @@ namespace ATMApplication.Services.Substitute
 {
     public class CardServiceSubstitute : ICardService
     {
-        public Task<CardEditModel> CreateCardForUser(User user, CardType cardType)
+        public Task<CardEditModel> CreateCardForUser(User user)
         {
             var newCard = new CardEditModel
             {
@@ -27,9 +27,7 @@ namespace ATMApplication.Services.Substitute
             var card = new Card()
             {
                 CardNumber = GenerateCardNumber(),
-                CardType = CardType.DEBIT,
                 Id = Guid.NewGuid(),
-                Owner = null,
                 MonthYear = GenerateMonthYear(),
                 OwnerName = $"Имя Фамилия"
             };
@@ -37,7 +35,7 @@ namespace ATMApplication.Services.Substitute
             return await Task.FromResult(card);
         }
 
-        public async Task<ICollection<Card>> GetUserCards(string userId)
+        public async Task<IEnumerable<Card>> GetUserCards(string userId)
         {
             var cardsCount = new Random().Next(1, 5);
             ICollection<Card> cards = new List<Card>(cardsCount);
@@ -47,9 +45,7 @@ namespace ATMApplication.Services.Substitute
                 cards.Add(new Card()
                 {
                     CardNumber = GenerateCardNumber(),
-                    CardType = CardType.DEBIT,
                     Id = Guid.NewGuid(),
-                    Owner = null,
                     MonthYear = GenerateMonthYear(),
                     OwnerName = $"Имя Фамилия"
                 });
@@ -95,6 +91,31 @@ namespace ATMApplication.Services.Substitute
         private int GenerateCVV()
         {
             return new Random().Next(100, 999);
+        }
+
+        public Task<IEnumerable<Card>> GetBankAccountCards(string accountId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<CardEditModel> CreateCardForBankAccount(BankAccount account)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task BlockCard(Card card)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<CardEditModel> CreateCardForUser(User user, BankAccountType accountType, decimal moneyLimit = 0)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BankAccount> GetCardBankAccount(string cardId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

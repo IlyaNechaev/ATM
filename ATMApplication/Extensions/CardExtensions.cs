@@ -8,12 +8,12 @@ namespace ATMApplication.Extensions
 {
     public static class CardExtensions
     {
-        public static string GetName(this CardType cardType)
+        public static string GetName(this BankAccountType accountType)
         {
-            return cardType switch
+            return accountType switch
             {
-                CardType.CREDIT => "Кредитовая",
-                CardType.DEBIT => "Дебетовая",
+                BankAccountType.CREDIT => "Кредитовый",
+                BankAccountType.DEBIT => "Дебетовый",
                 _ => throw new NotImplementedException()
             };
         }

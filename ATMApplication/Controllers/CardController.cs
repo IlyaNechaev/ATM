@@ -7,6 +7,7 @@ using ATMApplication.Initial.Filters;
 namespace ATMApplication.Controllers
 {
     [ApiController]
+    [JwtAuthorize]
     [Route("card")]
     public class CardController : Controller
     {
@@ -14,18 +15,20 @@ namespace ATMApplication.Controllers
         IUserService UserService { get; set; }
         IRepositoryFactory RepositoryFactory { get; set; }
         IMapper Mapper { get; set; }
+        IBankService BankService { get; set; }
         public CardController(ICardService cardService,
                               IUserService userService,
                               IRepositoryFactory repositoryFactory,
+                              IBankService bankService,
                               IMapper mapper)
         {
             CardService = cardService;
             UserService = userService;
             RepositoryFactory = repositoryFactory;
             Mapper = mapper;
+            BankService = bankService;
         }
 
-        [JwtAuthorize]
         [ValidateGuidFormat("cardId")]
         [HttpGet("{cardId}/info")]
         public async Task<IActionResult> GetCardInfo(string cardId)
@@ -39,7 +42,6 @@ namespace ATMApplication.Controllers
             return Ok(cardInfo);
         }
 
-        [JwtAuthorize]
         [ValidateGuidFormat("userId")]
         [HttpGet("/user/{userId}/cards")]
         public async Task<IActionResult> GetUserCards(string userId,
@@ -50,29 +52,57 @@ namespace ATMApplication.Controllers
             try
             {
                 var cards = await CardService.GetUserCards(userId);
-                cardViews = mapper.Map<ICollection<Card>, IEnumerable<CardViewModel>>(cards);
+                cardViews = mapper.Map<IEnumerable<Card>, IEnumerable<CardViewModel>>(cards);
             }
-            catch
+            catch (Exception ex)
             {
-                BadRequest("");
+                Ok(ex.Message);
             }
 
             return Ok(cardViews);
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCard(string userId, CardType cardType)
+        public async Task<IActionResult> CreateCard([FromBody] CreateCardRequest request)
         {
-            throw new NotImplementedException();
+            string userId = request.UserId;
+            BankAccountType accountType = request.BankAccountType;
+
+            var UserRepository = RepositoryFactory.GetRepository<User>();
+            var user = await UserRepository.GetSingleAsync(user => Guid.Parse(userId) == user.Id);
+            var card = new CardEditModel();
+
+            try
+            {
+                card = await CardService.CreateCardForUser(user, accountType);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+
+            return Ok(card);
         }
 
         [ValidateGuidFormat("senderCardId", "recieverCardId")]
         [HttpPost("transfer")]
-        public async Task<IActionResult> TransferMoney([FromBody] string senderCardId,
-                                                       [FromBody] string recieverCardId,
-                                                       [FromBody] decimal sum)
+        public async Task<IActionResult> TransferMoney(string senderCardId,
+                                                       string recieverCardId,
+                                                       decimal sum)
         {
+            var senderAccountTask = CardService.GetCardBankAccount(senderCardId);
+            var receiverAccountTask = CardService.GetCardBankAccount(recieverCardId);
 
+            try
+            {
+                await BankService.TransferMoney(await senderAccountTask, await receiverAccountTask, sum);
+            }
+            catch(Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+
+            return Ok();
         }
     }
 }

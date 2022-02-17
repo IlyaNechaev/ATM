@@ -17,16 +17,10 @@ namespace ATMApplication.Models
         public string OwnerName { get; set; }
         public string HashPin { get; set; }
         public string HashCVV { get; set; }
-        public CardType CardType { get; set; }
-
-        [ForeignKey(nameof(OwnerId))]
-        public User Owner { get; set; }
-        public Guid OwnerId { get; set; }
+        public bool IsActive { get; set; }
 
         [ForeignKey(nameof(AccountId))]
         public BankAccount Account { get; set; }
         public Guid AccountId { get; set; }
-    }
-
-    public enum CardType { DEBIT, CREDIT }
+    }    
 }

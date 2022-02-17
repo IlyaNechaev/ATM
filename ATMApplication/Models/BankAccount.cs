@@ -13,12 +13,22 @@ namespace ATMApplication.Models
         public Guid Id { get; set; }
 
         [Required]
+        public string AccountNumber { get; set; }
+
+        [Required]
         public decimal Money { get; set; }
+
+        public decimal? Limit { get; set; }
 
         [ForeignKey(nameof(OwnerId))]
         public User Owner { get; set; }
         public Guid OwnerId { get; set; }
 
         public List<Card> Cards { get; set; }
+
+        [Required]
+        public BankAccountType BankAccountType { get; set; }
     }
+
+    public enum BankAccountType { DEBIT, CREDIT }
 }

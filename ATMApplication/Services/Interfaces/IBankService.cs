@@ -6,8 +6,16 @@ using System.Threading.Tasks;
 
 namespace ATMApplication.Services
 {
-    interface IBankService
+    public interface IBankService
     {
-        public void TransferMoney(Card source, Card dest);
+        public Task TransferMoney(BankAccount source, BankAccount dest, decimal sum);
+
+        public Task<IEnumerable<BankAccount>> GetUserBankAccounts(string userId);
+
+        public Task<BankAccount> GetBankAccountById(string accountId);
+
+        public Task<BankAccount> CreateBankAccountForUser(User user, BankAccountType accountType, decimal moneyLimit = 0);
+
+        public Task AddNewCard(BankAccount account, Card card);
     }
 }

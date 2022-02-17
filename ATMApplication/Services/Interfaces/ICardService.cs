@@ -11,10 +11,18 @@ namespace ATMApplication.Services
     {
         public Task<ValidationResult> ValidateCard(CardEditModel model);
 
-        public Task<CardEditModel> CreateCardForUser(User user, CardType cardType);
+        public Task<CardEditModel> CreateCardForUser(User user, BankAccountType accountType, decimal moneyLimit = 0);
+
+        public Task<CardEditModel> CreateCardForBankAccount(BankAccount account);
 
         public Task<Card> GetCardById(Guid cardId);
 
-        public Task<ICollection<Card>> GetUserCards(string userId);
+        public Task<IEnumerable<Card>> GetUserCards(string userId);
+
+        public Task<IEnumerable<Card>> GetBankAccountCards(string accountId);
+
+        public Task<BankAccount> GetCardBankAccount(string cardId);
+
+        public Task BlockCard(Card card);
     }
 }

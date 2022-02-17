@@ -48,7 +48,7 @@ namespace ATMApplication.Models
 
         public Gender Gender { get; set; }
 
-        public List<Card> Cards { get; set; }
+        public List<BankAccount> Accounts { get; set; }
     }
 
     [Flags]
