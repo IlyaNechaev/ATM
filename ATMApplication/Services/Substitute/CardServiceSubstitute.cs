@@ -22,9 +22,19 @@ namespace ATMApplication.Services.Substitute
             return Task.FromResult(newCard);
         }
 
-        public Task<Card> GetCardById(Guid cardId)
+        public async Task<Card> GetCardById(Guid cardId)
         {
-            throw new NotImplementedException();
+            var card = new Card()
+            {
+                CardNumber = GenerateCardNumber(),
+                CardType = CardType.DEBIT,
+                Id = Guid.NewGuid(),
+                Owner = null,
+                MonthYear = GenerateMonthYear(),
+                OwnerName = $"Имя Фамилия"
+            };
+
+            return await Task.FromResult(card);
         }
 
         public async Task<ICollection<Card>> GetUserCards(string userId)

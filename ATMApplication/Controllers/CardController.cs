@@ -1,15 +1,5 @@
-﻿using ATMApplication.Extensions;
-using ATMApplication.Services;
-using ATMApplication.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Mvc;
 using ATMApplication.Data;
-using Microsoft.AspNetCore.Identity;
 using AutoMapper;
 using ATMApplication.Filters;
 using ATMApplication.Initial.Filters;
@@ -23,30 +13,30 @@ namespace ATMApplication.Controllers
         ICardService CardService { get; set; }
         IUserService UserService { get; set; }
         IRepositoryFactory RepositoryFactory { get; set; }
+        IMapper Mapper { get; set; }
         public CardController(ICardService cardService,
                               IUserService userService,
-                              IRepositoryFactory repositoryFactory)
+                              IRepositoryFactory repositoryFactory,
+                              IMapper mapper)
         {
             CardService = cardService;
             UserService = userService;
             RepositoryFactory = repositoryFactory;
+            Mapper = mapper;
         }
 
         [JwtAuthorize]
+        [ValidateGuidFormat("cardId")]
         [HttpGet("{cardId}/info")]
         public async Task<IActionResult> GetCardInfo(string cardId)
         {
-            var user = HttpContext.User;
-            if (!Guid.TryParse(cardId, out var id))
-            {
-                return BadRequest();
-            }
+            var id = Guid.Parse(cardId);
 
-            var CardRepository = RepositoryFactory.GetRepository<Card>();
+            var card = await CardService.GetCardById(id);
 
-            var cardInfo = (await CardRepository.GetAsync(card => card.Id.Equals(cardId)));
+            var cardInfo = Mapper.Map<Card, CardViewModel>(card);
 
-            throw new NotImplementedException();
+            return Ok(cardInfo);
         }
 
         [JwtAuthorize]
@@ -74,6 +64,15 @@ namespace ATMApplication.Controllers
         public async Task<IActionResult> CreateCard(string userId, CardType cardType)
         {
             throw new NotImplementedException();
+        }
+
+        [ValidateGuidFormat("senderCardId", "recieverCardId")]
+        [HttpPost("transfer")]
+        public async Task<IActionResult> TransferMoney([FromBody] string senderCardId,
+                                                       [FromBody] string recieverCardId,
+                                                       [FromBody] decimal sum)
+        {
+
         }
     }
 }

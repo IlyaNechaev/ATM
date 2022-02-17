@@ -82,6 +82,12 @@ namespace ATMApplication.Controllers
                         ModelState.AddModelError(kvp.Key, message);
                     }
                 }
+
+                foreach (var message in validationResult.CommonMessages)
+                {
+                    ModelState.AddModelError(string.Empty, message);
+                }
+
                 return BadRequest(ModelState);
             }
 

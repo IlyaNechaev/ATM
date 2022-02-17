@@ -1,8 +1,5 @@
-﻿using ATMApplication.Services;
+﻿using ATMApplication.Extensions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ATMApplication.Initial
 {
@@ -15,14 +12,17 @@ namespace ATMApplication.Initial
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, IUserService userService, IJwtUtils jwtUtils)
+        public async Task Invoke(HttpContext context, 
+                                 IUserService userService,
+                                 IJwtUtils jwtUtils)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            var userId = jwtUtils.ValidateToken(token);
-            if (userId != null)
+            var principal = jwtUtils.ValidateToken(token);
+
+            if (principal is not null)
             {
-                // attach user to context on successful jwt validation
-                context.Items["User"] = userService.GetUserById(userId.Value);
+                var userId = Guid.Parse(principal.GetClaim(ClaimKey.Id));
+                context.Items["User"] = await userService.GetUserById(userId);
             }
 
             await _next(context);

@@ -22,6 +22,10 @@ namespace ATMApplication.Models
         [ForeignKey(nameof(OwnerId))]
         public User Owner { get; set; }
         public Guid OwnerId { get; set; }
+
+        [ForeignKey(nameof(AccountId))]
+        public BankAccount Account { get; set; }
+        public Guid AccountId { get; set; }
     }
 
     public enum CardType { DEBIT, CREDIT }

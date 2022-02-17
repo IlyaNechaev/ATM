@@ -1,5 +1,6 @@
 ﻿using ATMApplication.Models;
 using System;
+using System.Security.Claims;
 
 namespace ATMApplication.Services
 {
@@ -7,7 +8,7 @@ namespace ATMApplication.Services
     {
         public string GenerateJSONWebToken(User user);
 
-        public Guid? ValidateToken(string token);
+        public ClaimsPrincipal ValidateToken(string token);
 
     }
 }

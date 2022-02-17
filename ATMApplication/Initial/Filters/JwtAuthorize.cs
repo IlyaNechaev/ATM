@@ -1,4 +1,6 @@
-﻿using ATMApplication.Models;
+﻿using ATMApplication.Extensions;
+using ATMApplication.Models;
+using ATMApplication.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,24 +9,25 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ATMApplication.Initial.Filters
+namespace ATMApplication.Initial.Filters;
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+public class JwtAuthorizeAttribute : Attribute, IAuthorizationFilter
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class JwtAuthorizeAttribute : Attribute, IAuthorizationFilter
+    public void OnAuthorization(AuthorizationFilterContext context)
     {
-        public void OnAuthorization(AuthorizationFilterContext context)
-        {
-            // skip authorization if action is decorated with [AllowAnonymous] attribute
-            var allowAnonymous = context.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any();
-            if (allowAnonymous)
-                return;
+        #region ATTRIBUTES_HANDLING
 
-            // authorization
-            var userTask = ((Task)(context.HttpContext.Items["User"]));
-            var user = userTask.GetType().GetProperty("Result").GetGetMethod().Invoke(userTask, null);
+        // Проверка разрешения доступа без аутентификации
+        var allowAnonymous = context.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any();
+        if (allowAnonymous)
+            return;
 
-            if (user == null)
-                context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
-        }
+        #endregion
+
+        var user = (User)context.HttpContext.Items["User"];
+
+        if (user == null)
+            context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
     }
 }

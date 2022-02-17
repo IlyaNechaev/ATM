@@ -13,10 +13,12 @@ namespace ATMApplication.Models
         public Guid Id { get; set; }
 
         [Required]
-        public double Money { get; set; }
+        public decimal Money { get; set; }
 
         [ForeignKey(nameof(OwnerId))]
         public User Owner { get; set; }
         public Guid OwnerId { get; set; }
+
+        public List<Card> Cards { get; set; }
     }
 }

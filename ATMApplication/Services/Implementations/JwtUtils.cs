@@ -44,7 +44,7 @@ namespace ATMApplication.Services
             return tokenHandler.WriteToken(token);
         }
 
-        public Guid? ValidateToken(string token)
+        public ClaimsPrincipal ValidateToken(string token)
         {
             if (token == null)
                 return null;
@@ -64,9 +64,8 @@ namespace ATMApplication.Services
                 tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var userId = Guid.Parse(jwtToken.Claims.First(x => x.Type == ClaimKey.Id).Value);
 
-                return userId;
+                return new ClaimsPrincipal(new ClaimsIdentity(jwtToken.Claims));
             }
             catch
             {

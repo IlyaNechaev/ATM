@@ -19,11 +19,16 @@ namespace ATMApplication.Validation
 
         public List<string> CommonMessages { get; set; }
 
+        public ValidationResult()
+        {
+            ErrorMessages = new(5);
+            CommonMessages = new(5);
+        }
+
+        #region ADD_MESSAGE
+
         public void AddMessage(string key, string message)
         {
-            if (ErrorMessages is null)
-                ErrorMessages = new(5);
-
             if (!ErrorMessages.ContainsKey(key))
             {
                 ErrorMessages.Add(key, new());
@@ -34,14 +39,15 @@ namespace ATMApplication.Validation
 
         public void AddCommonMessage(string message)
         {
-            if (CommonMessages is null)
-                CommonMessages = new();
-
             if (CommonMessages.Contains(message))
                 return;
 
             CommonMessages.Add(message);
         }
+
+        #endregion
+
+        #region REMOVE_MESSAGE
 
         public void RemoveMessages(string key)
         {
@@ -59,5 +65,7 @@ namespace ATMApplication.Validation
         {
             CommonMessages.Remove(message);
         }
+
+        #endregion
     }
 }
