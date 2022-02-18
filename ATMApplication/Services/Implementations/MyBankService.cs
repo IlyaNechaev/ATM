@@ -19,7 +19,7 @@ namespace ATMApplication.Services
 
         public async Task TransferMoney(BankAccount source, BankAccount dest, decimal sum)
         {
-            var validationResult = ValidateBankAccountForTransaction(source, sum);
+            var validationResult = ValidateBankAccountForWithdraw(source, sum);
             if (validationResult.HasErrors)
             {
                 throw new TransactionException(validationResult.CommonMessages[0]);
@@ -35,8 +35,8 @@ namespace ATMApplication.Services
             };
 
             var BankAccountRepository = RepositoryFactory.GetRepository<BankAccount>();
-            source.Money -= sum;
-            dest.Money += sum;
+            source.Balance -= sum;
+            dest.Balance += sum;
             await BankAccountRepository.UpdateAsync(source);
             await BankAccountRepository.UpdateAsync(dest);
 
@@ -62,27 +62,13 @@ namespace ATMApplication.Services
                 Cards = new(),
                 Owner = user,
                 Limit = accountType == BankAccountType.CREDIT ? moneyLimit : null,
-                Money = 0.0m,
+                Balance = 0.0m,
                 AccountNumber = await accountNumberTask
             };
 
             await BankAccountRepository.AddAsync(account);
 
             return account;
-        }
-
-        public async Task AddNewCard(BankAccount account, Card card)
-        {
-            var BankAccountRepository = RepositoryFactory.GetRepository<BankAccount>();
-
-            if (account.Cards.Any(card => card.IsActive))
-            {
-                throw new BankAccountException($"Невозможно привязать новую карту к счету {account.AccountNumber}, поскольку к нему привязаны активные карты");
-            }
-
-            account.Cards.Add(card);
-
-            await BankAccountRepository.UpdateAsync(account);
         }
 
         public async Task<BankAccount> GetBankAccountById(string accountId)
@@ -92,6 +78,23 @@ namespace ATMApplication.Services
             return await BankAccountRepository.GetSingleAsync(account => account.Id == Guid.Parse(accountId), 
                 nameof(BankAccount.Cards), 
                 nameof(BankAccount.Owner));
+        }
+
+        public async Task TransferMoney(BankAccount account, decimal sum, bool deposit = true)
+        {
+            if (!deposit)
+            {
+                var validationResult = ValidateBankAccountForWithdraw(account, sum);
+
+                if (validationResult.HasErrors)
+                {
+                    throw new TransactionException(validationResult.CommonMessages[0]);
+                }
+            }
+
+            var BankAccountRepository = RepositoryFactory.GetRepository<BankAccount>();
+            account.Balance = deposit ? account.Balance + sum : account.Balance - sum;
+            await BankAccountRepository.UpdateAsync(account);
         }
 
         private async Task<string> CreateBankAccountNumber()
@@ -114,15 +117,16 @@ namespace ATMApplication.Services
             return accountNumber.ToString();
         }
 
-        private ValidationResult ValidateBankAccountForTransaction(BankAccount account, decimal sum)
+        // Можно ли со счета снять/перевести деньги
+        private ValidationResult ValidateBankAccountForWithdraw(BankAccount account, decimal sum)
         {
             var result = new ValidationResult();
             switch (account.BankAccountType)
             {
-                case BankAccountType.CREDIT when account.Money + account.Limit - sum < 0:
+                case BankAccountType.CREDIT when account.Balance + account.Limit - sum < 0:
                     result.AddCommonMessage("Недостаточно средств");
                     break;
-                case BankAccountType.DEBIT when account.Money - sum < 0:
+                case BankAccountType.DEBIT when account.Balance - sum < 0:
                     result.AddCommonMessage("Недостаточно средств");
                     break;
             }

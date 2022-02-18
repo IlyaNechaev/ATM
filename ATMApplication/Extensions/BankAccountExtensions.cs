@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ATMApplication.Extensions
 {
-    public static class CardExtensions
+    public static class BankAccountExtensions
     {
         public static string GetName(this BankAccountType accountType)
         {

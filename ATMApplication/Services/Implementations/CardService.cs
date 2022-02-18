@@ -43,29 +43,7 @@ namespace ATMApplication.Services
         public async Task<CardEditModel> CreateCardForUser(User user, BankAccountType accountType, decimal moneyLimit = 0)
         {
             var account = await BankService.CreateBankAccountForUser(user, accountType, moneyLimit);
-            var cardInfo = new CardEditModel
-            {
-                CardNumber = await GenerateCardNumber(),
-                CVV = GenerateCVV(),
-                MonthYear = GenerateMonthYear(),
-                OnwerName = $"{user.FirstName.ToUpper()} {user.MiddleName.ToUpper()}",
-                Pin = GeneratePIN()
-            };
-
-            var card = Mapper.Map<CardEditModel, Card>(cardInfo);
-
-            card.Id = Guid.NewGuid();
-            card.Account = account;
-
-            var CardRepository = RepositoryFactory.GetRepository<Card>();
-            try
-            {
-                await CardRepository.AddAsync(card);
-            }
-            catch
-            {
-                return null;
-            }
+            var cardInfo = await CreateCardForBankAccount(account);
 
             return cardInfo;
         }
@@ -83,6 +61,7 @@ namespace ATMApplication.Services
             {
                 CardNumber = await GenerateCardNumber(),
                 CVV = GenerateCVV(),
+                Pin = GeneratePIN(),
                 MonthYear = GenerateMonthYear(),
                 OnwerName = $"{accountOwner.FirstName.ToUpper()} {accountOwner.MiddleName.ToUpper()}"
             };
@@ -91,7 +70,6 @@ namespace ATMApplication.Services
 
             card.Id = Guid.NewGuid();
             card.Account = account;
-            await BankService.AddNewCard(account, card);
 
             var CardRepository = RepositoryFactory.GetRepository<Card>();
             try
@@ -162,12 +140,52 @@ namespace ATMApplication.Services
             return cardNumber;
         }
 
+        public async Task<IEnumerable<Card>> GetBankAccountCards(string accountId)
+        {
+            var CardRepository = RepositoryFactory.GetRepository<Card>();
+            var cards = await CardRepository.GetAsync(card => card.AccountId == Guid.Parse(accountId));
+
+            return cards;
+        }
+
+        public async Task BlockCard(Card card)
+        {
+            var CardRepository = RepositoryFactory.GetRepository<Card>();
+            card.IsActive = false;
+
+            await CardRepository.UpdateAsync(card);
+        }
+
+        public async Task<BankAccount> GetCardBankAccount(string cardId)
+        {
+            var CardRepository = RepositoryFactory.GetRepository<Card>();
+
+            var card = await CardRepository.GetSingleAsync(card => card.Id == Guid.Parse(cardId), nameof(Card.Account));
+
+            return card.Account;
+        }
+
+        public async Task DepositWithdrawCash(string cardId, decimal sum, bool deposit = true)
+        {
+            var account = await GetCardBankAccount(cardId.ToString());
+
+            try
+            {
+                if (sum < 0)
+                    throw new TransactionException("Сумма перевода не может быть отрицательной");
+                await BankService.TransferMoney(account, sum, deposit);
+            }
+            catch (TransactionException)
+            {
+                throw;
+            }
+        }
+
         private DateTime GenerateMonthYear()
         {
             var date = DateTime.Now.AddYears(4);
             return new DateTime(date.Year, date.Month + 1, 1);
         }
-
         private string HashCVV(string cvv)
         {
             return SecurityService.GetPasswordHash(cvv);
@@ -216,29 +234,5 @@ namespace ATMApplication.Services
             return result;
         }
 
-        public async Task<IEnumerable<Card>> GetBankAccountCards(string accountId)
-        {
-            var CardRepository = RepositoryFactory.GetRepository<Card>();
-            var cards = await CardRepository.GetAsync(card => card.AccountId == Guid.Parse(accountId));
-            var s = await CardRepository.GetAllAsync();
-            return cards;
-        }
-
-        public async Task BlockCard(Card card)
-        {
-            var CardRepository = RepositoryFactory.GetRepository<Card>();
-            card.IsActive = false;
-
-            await CardRepository.UpdateAsync(card);
-        }
-
-        public async Task<BankAccount> GetCardBankAccount(string cardId)
-        {
-            var CardRepository = RepositoryFactory.GetRepository<Card>();
-
-            var card = await CardRepository.GetSingleAsync(card => card.Id == Guid.Parse(cardId), nameof(Card.Account));
-
-            return card.Account;
-        }
     }
 }

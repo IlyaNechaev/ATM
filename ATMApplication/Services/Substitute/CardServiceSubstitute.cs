@@ -117,5 +117,15 @@ namespace ATMApplication.Services.Substitute
         {
             throw new NotImplementedException();
         }
+
+        public Task DepositWithdrawCash(Card card, decimal sum, bool deposit = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DepositWithdrawCash(string cardId, decimal sum, bool deposit = true)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

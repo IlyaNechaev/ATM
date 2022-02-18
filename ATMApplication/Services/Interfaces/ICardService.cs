@@ -24,5 +24,7 @@ namespace ATMApplication.Services
         public Task<BankAccount> GetCardBankAccount(string cardId);
 
         public Task BlockCard(Card card);
+
+        public Task DepositWithdrawCash(string cardId, decimal sum, bool deposit = true);
     }
 }

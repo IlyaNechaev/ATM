@@ -9,6 +9,7 @@ namespace ATMApplication.Services
     public interface IBankService
     {
         public Task TransferMoney(BankAccount source, BankAccount dest, decimal sum);
+        public Task TransferMoney(BankAccount account, decimal sum, bool deposit = true);
 
         public Task<IEnumerable<BankAccount>> GetUserBankAccounts(string userId);
 
@@ -16,6 +17,5 @@ namespace ATMApplication.Services
 
         public Task<BankAccount> CreateBankAccountForUser(User user, BankAccountType accountType, decimal moneyLimit = 0);
 
-        public Task AddNewCard(BankAccount account, Card card);
     }
 }

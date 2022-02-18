@@ -21,8 +21,12 @@ namespace ATMApplication.Initial
 
             if (principal is not null)
             {
-                var userId = Guid.Parse(principal.GetClaim(ClaimKey.Id));
-                context.Items["User"] = await userService.GetUserById(userId);
+                try
+                {
+                    var userId = Guid.Parse(principal.GetClaim(ClaimKey.Id));
+                    context.Items["User"] = await userService.GetUserById(userId);
+                }
+                catch { }
             }
 
             await _next(context);

@@ -16,7 +16,7 @@ namespace ATMApplication.Models
         public string AccountNumber { get; set; }
 
         [Required]
-        public decimal Money { get; set; }
+        public decimal Balance { get; set; }
 
         public decimal? Limit { get; set; }
 

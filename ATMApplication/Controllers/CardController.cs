@@ -104,5 +104,55 @@ namespace ATMApplication.Controllers
 
             return Ok();
         }
+
+        [HttpPost("deposit")]
+        public async Task<IActionResult> DepositMoney([FromBody] DepositWithdrawCash request)
+        {
+            try
+            {
+                await CardService.DepositWithdrawCash(request.CardId, request.Sum, true);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+
+            var card = await RepositoryFactory.GetRepository<Card>().GetSingleAsync(card => card.Id == Guid.Parse(request.CardId));
+            var accountBalance = (await RepositoryFactory.GetRepository<BankAccount>().GetSingleAsync(account => account.Id == card.AccountId)).Balance;
+            var response = new
+            {
+                SourceCard = Mapper.Map<Card, CardViewModel>(card),
+                Sum = request.Sum,
+                Balance = accountBalance,
+                DepositTime = DateTime.Now
+            };
+
+            return Ok(response);
+        }
+        
+        [HttpPost("withdraw")]
+        public async Task<IActionResult> WithdrawMoney([FromBody] DepositWithdrawCash request)
+        {
+            try
+            {
+                await CardService.DepositWithdrawCash(request.CardId, request.Sum, false);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+
+            var card = await RepositoryFactory.GetRepository<Card>().GetSingleAsync(card => card.Id == Guid.Parse(request.CardId));
+            var accountBalance = (await RepositoryFactory.GetRepository<BankAccount>().GetSingleAsync(account => account.Id == card.AccountId)).Balance;
+            var response = new
+            {
+                SourceCard = Mapper.Map<Card, CardViewModel>(card),
+                Sum = request.Sum,
+                Balance = accountBalance,
+                WithdrawTime = DateTime.Now
+            };
+
+            return Ok(response);
+        }
     }
 }
