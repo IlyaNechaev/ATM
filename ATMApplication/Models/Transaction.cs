@@ -2,11 +2,11 @@
 
 namespace ATMApplication.Models
 {
-    public class Transaction
+    public record Transaction
     {
         [Key]
         public Guid Id { get; set; }
-
+        [Required]
         public decimal Sum { get; set; }
         public DateTime TransactionTime { get; set; }
         public BankAccount AccountSender { get; set; }

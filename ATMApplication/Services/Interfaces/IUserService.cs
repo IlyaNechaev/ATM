@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ATMApplication.Services
@@ -16,13 +17,14 @@ namespace ATMApplication.Services
         public Task<ValidationResult> RegisterUser(RegisterEditModel registerModel, ISecurityService securityService);
         #endregion
 
-        // Вход в систему пользователя по логину и паролю
-        #region SIGN_IN
-        public Task<(ValidationResult ValidationResult, string Token)> SignInUser(LoginEditModel loginModel);
-        public Task<(ValidationResult ValidationResult, string Token)> SignInUser(LoginEditModel loginModel, ISecurityService securityService);
-        public Task<(ValidationResult ValidationResult, string Token)> SignInUser(string login, string password);
-        public Task<(ValidationResult ValidationResult, string Token)> SignInUser(string login, string password, ISecurityService securityService);
+        #region GET_LOGIN_USER
+        public Task<(ValidationResult ValidationResult, User User)> GetLogInUser(LoginEditModel loginModel);
+        public Task<(ValidationResult ValidationResult, User User)> GetLogInUser(LoginEditModel loginModel, ISecurityService securityService);
+        public Task<(ValidationResult ValidationResult, User User)> GetLogInUser(string login, string password);
+        public Task<(ValidationResult ValidationResult, User User)> GetLogInUser(string login, string password, ISecurityService securityService);
         #endregion
+
+        public Task<ClaimsPrincipal> CreateUserPrincipal(User user);
 
         public Task LogoutUser(HttpContext context);
 

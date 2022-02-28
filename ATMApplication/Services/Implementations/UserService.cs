@@ -74,12 +74,12 @@ namespace ATMApplication.Services
             return validationResult;
         }
 
-        public async Task<(ValidationResult ValidationResult, string Token)> SignInUser(LoginEditModel loginModel)
+        public async Task<(ValidationResult ValidationResult, User User)> GetLogInUser(LoginEditModel loginModel)
         {
-            return await SignInUser(loginModel, SecurityService);
+            return await GetLogInUser(loginModel, SecurityService);
         }
 
-        public async Task<(ValidationResult ValidationResult, string Token)> SignInUser(
+        public async Task<(ValidationResult ValidationResult, User User)> GetLogInUser(
             LoginEditModel loginModel,
             ISecurityService securityService
             )
@@ -88,20 +88,18 @@ namespace ATMApplication.Services
 
             if (validationResult.HasErrors)
             {
-                return (validationResult, string.Empty);
+                return (validationResult, null);
             }
 
-            var token = JwtUtils.GenerateJSONWebToken(validUser);
-
-            return (validationResult, token);
+            return (validationResult, validUser);
         }
 
-        public async Task<(ValidationResult ValidationResult, string Token)> SignInUser(string login, string password)
+        public async Task<(ValidationResult ValidationResult, User User)> GetLogInUser(string login, string password)
         {
-            return await SignInUser(login, password, SecurityService);
+            return await GetLogInUser(login, password, SecurityService);
         }
 
-        public async Task<(ValidationResult ValidationResult, string Token)> SignInUser(string login, string password, ISecurityService securityService)
+        public async Task<(ValidationResult ValidationResult, User User)> GetLogInUser(string login, string password, ISecurityService securityService)
         {
             var loginModel = new LoginEditModel
             {
@@ -109,7 +107,7 @@ namespace ATMApplication.Services
                 Password = password
             };
 
-            return await SignInUser(loginModel, securityService);
+            return await GetLogInUser(loginModel, securityService);
         }
 
         public async Task LogoutUser(HttpContext context)
@@ -236,6 +234,24 @@ namespace ATMApplication.Services
             }
 
             return (result, validUser);
+        }
+
+        public async Task<ClaimsPrincipal> CreateUserPrincipal(User user)
+        {
+            if (user is null)
+                return null;
+
+            var claims = new Claim[]
+            {
+            new Claim(ClaimKey.Login, user.Login),
+            new Claim(ClaimKey.FirstName, user.FirstName),
+            new Claim(ClaimKey.Id, user.Id.ToString())
+            };
+
+            // Создаем объект ClaimsIdentity
+            var claimId = new ClaimsIdentity(claims, "AppCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+
+            return await Task.FromResult(new ClaimsPrincipal(claimId));
         }
     }
 }

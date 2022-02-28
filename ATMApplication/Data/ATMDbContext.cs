@@ -17,6 +17,7 @@ namespace ATMApplication.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Card> Cards { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
         public ATMDbContext(DbContextOptions<ATMDbContext> builder,
                                [FromServices] ISecurityService securityService,

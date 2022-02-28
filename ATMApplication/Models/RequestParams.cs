@@ -1,13 +1,24 @@
 ﻿namespace ATMApplication.Models;
 
-public class CreateCardRequest
+public struct CreateCardRequest
 {
-    public string UserId { get; set; }
     public BankAccountType BankAccountType { get; set; }
 }
 
-public record DepositWithdrawCash
+public struct DepositWithdrawCashRequest
 {
     public decimal Sum { get; set; }
-    public string CardId { get; set; }
+    public ulong CardNumber { get; set; }
+}
+
+public struct TransactionRequest
+{
+    public ulong SourceCardNumber { get; set; }
+    public ulong TargetCardNumber { get; set; }
+    public decimal Sum { get; set; }
+}
+
+public struct BlockCardRequest
+{
+    public ulong CardNumber { get; set; }
 }

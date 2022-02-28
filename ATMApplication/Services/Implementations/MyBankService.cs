@@ -37,10 +37,10 @@ namespace ATMApplication.Services
             var BankAccountRepository = RepositoryFactory.GetRepository<BankAccount>();
             source.Balance -= sum;
             dest.Balance += sum;
+
             await BankAccountRepository.UpdateAsync(source);
             await BankAccountRepository.UpdateAsync(dest);
-
-            await TransactionRepository.UpdateAsync(transaction);
+            await TransactionRepository.AddAsync(transaction);
         }
 
         public async Task<IEnumerable<BankAccount>> GetUserBankAccounts(string userId)

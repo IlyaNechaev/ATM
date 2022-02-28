@@ -12,5 +12,6 @@ namespace ATMApplication.Models
         public DateTime MonthYear { get; set; }
         public string OwnerName { get; set; }
         public string CardType { get; set; }
+        public decimal Balance { get; set; }
     }
 }

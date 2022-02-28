@@ -15,16 +15,19 @@ namespace ATMApplication.Services
 
         public Task<CardEditModel> CreateCardForBankAccount(BankAccount account);
 
-        public Task<Card> GetCardById(Guid cardId);
+        public Task<Card> GetCard(Guid cardId);
+        public Task<Card> GetCard(ulong cardNumber);
 
         public Task<IEnumerable<Card>> GetUserCards(string userId);
 
         public Task<IEnumerable<Card>> GetBankAccountCards(string accountId);
 
         public Task<BankAccount> GetCardBankAccount(string cardId);
+        public Task<BankAccount> GetCardBankAccount(ulong cardNumber);
 
         public Task BlockCard(Card card);
 
         public Task DepositWithdrawCash(string cardId, decimal sum, bool deposit = true);
+        public Task DepositWithdrawCash(ulong cardNumber, decimal sum, bool deposit = true);
     }
 }

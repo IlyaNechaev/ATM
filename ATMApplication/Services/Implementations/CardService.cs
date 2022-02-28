@@ -84,7 +84,7 @@ namespace ATMApplication.Services
             return cardInfo;
         }
 
-        public async Task<Card> GetCardById(Guid cardId)
+        public async Task<Card> GetCard(Guid cardId)
         {
             var cardRepository = RepositoryFactory.GetRepository<Card>();
             Card card = null;
@@ -101,6 +101,22 @@ namespace ATMApplication.Services
             return card;
         }
 
+        public async Task<Card> GetCard(ulong cardNumber)
+        {
+            var cardRepository = RepositoryFactory.GetRepository<Card>();
+            Card card = null;
+
+            try
+            {
+                card = await cardRepository.GetSingleAsync(card => card.CardNumber == cardNumber);
+            }
+            catch (RepositoryException ex)
+            {
+                Logger?.LogError(ex.FullMessage);
+            }
+
+            return card;
+        }
         public async Task<IEnumerable<Card>> GetUserCards(string userId)
         {
             var id = Guid.Parse(userId);
@@ -179,6 +195,30 @@ namespace ATMApplication.Services
             {
                 throw;
             }
+        }
+        public async Task DepositWithdrawCash(ulong cardNumber, decimal sum, bool deposit = true)
+        {
+            var account = await GetCardBankAccount(cardNumber);
+
+            try
+            {
+                if (sum < 0)
+                    throw new TransactionException("Сумма перевода не может быть отрицательной");
+                await BankService.TransferMoney(account, sum, deposit);
+            }
+            catch (TransactionException)
+            {
+                throw;
+            }
+        }
+
+        public async Task<BankAccount> GetCardBankAccount(ulong cardNumber)
+        {
+            var CardRepository = RepositoryFactory.GetRepository<Card>();
+
+            var card = await CardRepository.GetSingleAsync(card => card.CardNumber == cardNumber, nameof(Card.Account));
+
+            return card.Account;
         }
 
         private DateTime GenerateMonthYear()

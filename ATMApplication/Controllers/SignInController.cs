@@ -15,17 +15,20 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ATMApplication.Controllers
 {
-    public class AdministrationController : Controller
+    public class SignInController : Controller
     {
         IUserService UserService;
         IRepositoryFactory RepositoryFactory;
+        SignInManager SignInManager;
 
-        public AdministrationController(
+        public SignInController(
             [FromServices] IUserService userService,
-            [FromServices] IRepositoryFactory repositoryFactory)
+            [FromServices] IRepositoryFactory repositoryFactory,
+            [FromServices] SignInManager signInManager)
         {
             UserService = userService;
             RepositoryFactory = repositoryFactory;
+            SignInManager = signInManager;
         }
 
         [HttpPost("register")]
@@ -55,7 +58,8 @@ namespace ATMApplication.Controllers
             }
 
             // Аутентификация пользователя
-            (_, var token) = await UserService.SignInUser(model.Login, model.Password);
+            (_, var user) = await UserService.GetLogInUser(model.Login, model.Password);
+            var token = SignInManager.LogIn().UsingJWT(user);
 
             return Ok(new { Token = token });
         }
@@ -66,10 +70,10 @@ namespace ATMApplication.Controllers
             // Проверяем, присутствуют ли в моделе ошибки
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return Ok(ModelState);
             }
 
-            (var validationResult, var token) = await UserService.SignInUser(model.Login, model.Password);
+            (var validationResult, var user) = await UserService.GetLogInUser(model.Login, model.Password);
 
             // Если во время аутентификации были получены ошибки
             if (validationResult.HasErrors)
@@ -88,10 +92,21 @@ namespace ATMApplication.Controllers
                     ModelState.AddModelError(string.Empty, message);
                 }
 
-                return BadRequest(ModelState);
+                return Ok(ModelState);
             }
 
-            return Ok(new { token = token });
+            var principal = await UserService.CreateUserPrincipal(user);
+
+            await SignInManager.LogIn().UsingClaims(HttpContext, principal);
+            
+            return Ok();
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await SignInManager.LogOut().UsingClaims(HttpContext);
+
+            return Ok();
         }
     }
 }

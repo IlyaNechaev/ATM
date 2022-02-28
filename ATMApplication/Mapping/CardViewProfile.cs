@@ -17,6 +17,7 @@ namespace ATMApplication.Mapping
                 .ForMember(model => model.CardNumber, options => options.MapFrom(card => card.CardNumber))
                 .ForMember(model => model.MonthYear, options => options.MapFrom(card => card.MonthYear))
                 .ForMember(model => model.CardType, options => options.MapFrom(card => card.Account.BankAccountType.GetName()))
+                .ForMember(model => model.Balance, options => options.MapFrom(card => card.Account.Balance))
                 .ForMember(model => model.OwnerName, options => options.MapFrom(card => card.OwnerName));
         }
     }
