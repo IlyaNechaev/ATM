@@ -8,8 +8,8 @@ namespace ATMApplication.Services
 {
     public interface IBankService
     {
-        public Task TransferMoney(BankAccount source, BankAccount dest, decimal sum);
-        public Task TransferMoney(BankAccount account, decimal sum, bool deposit = true);
+        public Task<Transaction> TransferMoney(BankAccount source, BankAccount dest, decimal sum);
+        public Task<Transaction> TransferMoney(BankAccount account, decimal sum, bool deposit = true);
 
         public Task<IEnumerable<BankAccount>> GetUserBankAccounts(string userId);
 

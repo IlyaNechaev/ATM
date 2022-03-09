@@ -31,15 +31,13 @@ namespace ATMApplication.Controllers
             BankService = bankService;
         }
 
-        [ValidateGuidFormat("cardId")]
-        [HttpGet("info/{cardId}")]
-        public async Task<IActionResult> GetCardInfo(string cardId)
+        [HttpGet("info/{cardNumber}")]
+        public async Task<IActionResult> GetCardInfo(ulong cardNumber)
         {
-            var id = Guid.Parse(cardId);
             Card card = null;
             try
             {
-                card = await CardService.GetCard(id);
+                card = await CardService.GetCard(cardNumber);
             }
             catch (Exception ex)
             {
@@ -103,17 +101,17 @@ namespace ATMApplication.Controllers
             }
             var sourceAccountTask = CardService.GetCardBankAccount(request.SourceCardNumber);
             var targetAccountTask = CardService.GetCardBankAccount(request.TargetCardNumber);
-
+            var transaction = new Transaction();
             try
             {
-                await BankService.TransferMoney(await sourceAccountTask, await targetAccountTask, request.Sum);
+                transaction = await BankService.TransferMoney(await sourceAccountTask, await targetAccountTask, request.Sum);
             }
             catch(Exception ex)
             {
-                return Ok(ex.Message);
+                return Ok(new { Message = ex.Message });
             }
 
-            return Ok();
+            return Ok(transaction is not null ? transaction : string.Empty);
         }
 
         [HttpPost("deposit")]

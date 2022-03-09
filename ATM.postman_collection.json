@@ -1,0 +1,767 @@
+{
+	"info": {
+		"_postman_id": "8a0e2c33-27f6-49ac-ae64-767545fb38d1",
+		"name": "ATM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Cards",
+			"item": [
+				{
+					"name": "GetCardInfo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDbGFpbS5LZXkuTG9naW4iOiJpbHlhIiwiQ2xhaW0uS2V5LkZpcnN0TmFtZSI6ItCY0LvRjNGPIiwiQ2xhaW0uS2V5LlNlY29uZE5hbWUiOiLQndC10YfQsNC10LIiLCJDbGFpbS5LZXkuSWQiOiJlMzVkNWY0Yy05MTA2LTQ4YTItMzgyNC0wOGQ5ZjI1ZTY1ZTEiLCJqdGkiOiIwN2UwNDU1ZC02MDM3LTQ5NDMtYTM5MC03NDY1YjQwOWQwNjUiLCJuYmYiOjE2NDUxMzQxNTAsImV4cCI6MTY0NTczODk1MCwiaWF0IjoxNjQ1MTM0MTUwfQ.R9cgssgmWHXnH_DEgM5FEmNc5PMfUGJn1DAYPQQFvU0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:44345/card/84F86D6C-6170-46DF-7947-08D9E98A0907/info",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44345",
+							"path": [
+								"card",
+								"84F86D6C-6170-46DF-7947-08D9E98A0907",
+								"info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateCard",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDbGFpbS5LZXkuTG9naW4iOiJpbHlhIiwiQ2xhaW0uS2V5LkZpcnN0TmFtZSI6ItCY0LvRjNGPIiwiQ2xhaW0uS2V5LlNlY29uZE5hbWUiOiLQndC10YfQsNC10LIiLCJDbGFpbS5LZXkuSWQiOiJlMzVkNWY0Yy05MTA2LTQ4YTItMzgyNC0wOGQ5ZjI1ZTY1ZTEiLCJqdGkiOiIwN2UwNDU1ZC02MDM3LTQ5NDMtYTM5MC03NDY1YjQwOWQwNjUiLCJuYmYiOjE2NDUxMzQxNTAsImV4cCI6MTY0NTczODk1MCwiaWF0IjoxNjQ1MTM0MTUwfQ.R9cgssgmWHXnH_DEgM5FEmNc5PMfUGJn1DAYPQQFvU0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"BankAccountType\": \"DEBIT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44345/card/create",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44345",
+							"path": [
+								"card",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserCards",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDbGFpbS5LZXkuTG9naW4iOiJpbHlhIiwiQ2xhaW0uS2V5LkZpcnN0TmFtZSI6ItCY0LvRjNGPIiwiQ2xhaW0uS2V5LlNlY29uZE5hbWUiOiLQndC10YfQsNC10LIiLCJDbGFpbS5LZXkuSWQiOiJlMzVkNWY0Yy05MTA2LTQ4YTItMzgyNC0wOGQ5ZjI1ZTY1ZTEiLCJqdGkiOiIwN2UwNDU1ZC02MDM3LTQ5NDMtYTM5MC03NDY1YjQwOWQwNjUiLCJuYmYiOjE2NDUxMzQxNTAsImV4cCI6MTY0NTczODk1MCwiaWF0IjoxNjQ1MTM0MTUwfQ.R9cgssgmWHXnH_DEgM5FEmNc5PMfUGJn1DAYPQQFvU0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:44345/user/E35D5F4C-9106-48A2-3824-08D9F25E65E1/cards",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44345",
+							"path": [
+								"user",
+								"E35D5F4C-9106-48A2-3824-08D9F25E65E1",
+								"cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "https://localhost:44345/card/1/info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDbGFpbS5LZXkuTG9naW4iOiJpbHlhIiwiQ2xhaW0uS2V5LkZpcnN0TmFtZSI6IklseWEiLCJDbGFpbS5LZXkuU2Vjb25kTmFtZSI6IjEyMyIsImp0aSI6ImY4OTc0NWFhLWQ1OGItNDU4OC1iYzNjLTdhODhlODQ3MTRhOCIsImV4cCI6MTY0NDA4NjMxMCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzNDUvIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzNDUvIn0.WpLAvJLfA63KCzDdowJaGsvlli1_Kqg6PhgXcSA3rOA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:44345/card/1/info",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44345",
+							"path": [
+								"card",
+								"1",
+								"info"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "FirstName",
+									"value": "Илья",
+									"type": "text"
+								},
+								{
+									"key": "MiddleName",
+									"value": "Нечаев",
+									"type": "text"
+								},
+								{
+									"key": "LastName",
+									"value": "Викторович",
+									"type": "text"
+								},
+								{
+									"key": "Email",
+									"value": "user@mail.ru",
+									"type": "text"
+								},
+								{
+									"key": "Login",
+									"value": "ilya",
+									"type": "text"
+								},
+								{
+									"key": "Password",
+									"value": "123",
+									"type": "text"
+								},
+								{
+									"key": "ConfirmPassword",
+									"value": "123",
+									"type": "text"
+								},
+								{
+									"key": "PhoneNumber",
+									"value": "+7(985)198-11-39",
+									"type": "text"
+								},
+								{
+									"key": "DateOfBirth",
+									"value": "01.01.2000",
+									"type": "text"
+								},
+								{
+									"key": "Gender",
+									"value": "Male",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://localhost:44345/register",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44345",
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "Login",
+									"value": "ilya",
+									"type": "text"
+								},
+								{
+									"key": "Password",
+									"value": "123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://localhost:44345/login",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44345",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Scenarios",
+			"item": [
+				{
+					"name": "Register Илья",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "FirstName",
+									"value": "Илья",
+									"type": "text"
+								},
+								{
+									"key": "MiddleName",
+									"value": "Нечаев",
+									"type": "text"
+								},
+								{
+									"key": "LastName",
+									"value": "Викторович",
+									"type": "text"
+								},
+								{
+									"key": "Email",
+									"value": "ilya@mail.ru",
+									"type": "text"
+								},
+								{
+									"key": "Login",
+									"value": "ilya",
+									"type": "text"
+								},
+								{
+									"key": "Password",
+									"value": "123",
+									"type": "text"
+								},
+								{
+									"key": "ConfirmPassword",
+									"value": "123",
+									"type": "text"
+								},
+								{
+									"key": "PhoneNumber",
+									"value": "+7(985)198-11-39",
+									"type": "text"
+								},
+								{
+									"key": "DateOfBirth",
+									"value": "01.01.2000",
+									"type": "text"
+								},
+								{
+									"key": "Gender",
+									"value": "MALE",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{atm_url}}/register",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Саша",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "FirstName",
+									"value": "Александр",
+									"type": "text"
+								},
+								{
+									"key": "MiddleName",
+									"value": "Иванов",
+									"type": "text"
+								},
+								{
+									"key": "LastName",
+									"value": "Петрович",
+									"type": "text"
+								},
+								{
+									"key": "Email",
+									"value": "alex@mail.ru",
+									"type": "text"
+								},
+								{
+									"key": "Login",
+									"value": "sasha",
+									"type": "text"
+								},
+								{
+									"key": "Password",
+									"value": "123",
+									"type": "text"
+								},
+								{
+									"key": "ConfirmPassword",
+									"value": "123",
+									"type": "text"
+								},
+								{
+									"key": "PhoneNumber",
+									"value": "+7(985)198-11-38",
+									"type": "text"
+								},
+								{
+									"key": "DateOfBirth",
+									"value": "01.02.2000",
+									"type": "text"
+								},
+								{
+									"key": "Gender",
+									"value": "MALE",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{atm_url}}/register",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Саша",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "Login",
+									"value": "sasha",
+									"type": "text"
+								},
+								{
+									"key": "Password",
+									"value": "123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{atm_url}}/login",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create debit card",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"BankAccountType\": \"DEBIT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{atm_url}}/card/create",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"card",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all user's cards",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{atm_url}}/user/cards",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"user",
+								"cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Илья",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "Login",
+									"value": "ilya",
+									"type": "text"
+								},
+								{
+									"key": "Password",
+									"value": "123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{atm_url}}/login",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create debit card",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"BankAccountType\": \"DEBIT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{atm_url}}/card/create",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"card",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create credit card",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDbGFpbS5LZXkuTG9naW4iOiJpbHlhIiwiQ2xhaW0uS2V5LkZpcnN0TmFtZSI6ItCY0LvRjNGPIiwiQ2xhaW0uS2V5LlNlY29uZE5hbWUiOiLQndC10YfQsNC10LIiLCJDbGFpbS5LZXkuSWQiOiJjZjY3MDNlMi1mYzU2LTQ1ZjQtYjE5Yy0wOGQ5ZjJjNzYxMmUiLCJqdGkiOiJhMzU5YjdmMC1lMzcyLTQ4MTAtODM4Mi03ODRhZmIyMWUyNDQiLCJuYmYiOjE2NDUxNzkyMzksImV4cCI6MTY0NTc4NDAzOSwiaWF0IjoxNjQ1MTc5MjM5fQ.rE-DYv6SaJ5foduKdn5KMtDTRBQcvoRszzQrQxog8p8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"BankAccountType\": \"CREDIT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{atm_url}}/card/create",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"card",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deposit cash",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDbGFpbS5LZXkuTG9naW4iOiJpbHlhIiwiQ2xhaW0uS2V5LkZpcnN0TmFtZSI6ItCY0LvRjNGPIiwiQ2xhaW0uS2V5LlNlY29uZE5hbWUiOiLQndC10YfQsNC10LIiLCJDbGFpbS5LZXkuSWQiOiJjZjY3MDNlMi1mYzU2LTQ1ZjQtYjE5Yy0wOGQ5ZjJjNzYxMmUiLCJqdGkiOiJhMzU5YjdmMC1lMzcyLTQ4MTAtODM4Mi03ODRhZmIyMWUyNDQiLCJuYmYiOjE2NDUxNzkyMzksImV4cCI6MTY0NTc4NDAzOSwiaWF0IjoxNjQ1MTc5MjM5fQ.rE-DYv6SaJ5foduKdn5KMtDTRBQcvoRszzQrQxog8p8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"CardNumber\": 4126540116851308,\r\n    \"Sum\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{atm_url}}/card/deposit",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"card",
+								"deposit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all user's cards",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{atm_url}}/user/cards",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"user",
+								"cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Transfer money",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDbGFpbS5LZXkuTG9naW4iOiJpbHlhIiwiQ2xhaW0uS2V5LkZpcnN0TmFtZSI6ItCY0LvRjNGPIiwiQ2xhaW0uS2V5LlNlY29uZE5hbWUiOiLQndC10YfQsNC10LIiLCJDbGFpbS5LZXkuSWQiOiJjZjY3MDNlMi1mYzU2LTQ1ZjQtYjE5Yy0wOGQ5ZjJjNzYxMmUiLCJqdGkiOiJhMzU5YjdmMC1lMzcyLTQ4MTAtODM4Mi03ODRhZmIyMWUyNDQiLCJuYmYiOjE2NDUxNzkyMzksImV4cCI6MTY0NTc4NDAzOSwiaWF0IjoxNjQ1MTc5MjM5fQ.rE-DYv6SaJ5foduKdn5KMtDTRBQcvoRszzQrQxog8p8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"SourceCardNumber\": \"4126540116851308\",\r\n    \"TargetCardNumber\": \"7356867844214533\",\r\n    \"Sum\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{atm_url}}/card/transfer",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"card",
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Саша",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "Login",
+									"value": "sasha",
+									"type": "text"
+								},
+								{
+									"key": "Password",
+									"value": "123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{atm_url}}/login",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Withdraw cash",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDbGFpbS5LZXkuTG9naW4iOiJpbHlhIiwiQ2xhaW0uS2V5LkZpcnN0TmFtZSI6ItCY0LvRjNGPIiwiQ2xhaW0uS2V5LlNlY29uZE5hbWUiOiLQndC10YfQsNC10LIiLCJDbGFpbS5LZXkuSWQiOiJjZjY3MDNlMi1mYzU2LTQ1ZjQtYjE5Yy0wOGQ5ZjJjNzYxMmUiLCJqdGkiOiJhMzU5YjdmMC1lMzcyLTQ4MTAtODM4Mi03ODRhZmIyMWUyNDQiLCJuYmYiOjE2NDUxNzkyMzksImV4cCI6MTY0NTc4NDAzOSwiaWF0IjoxNjQ1MTc5MjM5fQ.rE-DYv6SaJ5foduKdn5KMtDTRBQcvoRszzQrQxog8p8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"CardNumber\": 4251014500771042,\r\n    \"Sum\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{atm_url}}/card/withdraw",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"card",
+								"withdraw"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{atm_url}}/logout",
+							"host": [
+								"{{atm_url}}"
+							],
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get card's info",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

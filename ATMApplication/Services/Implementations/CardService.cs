@@ -108,7 +108,7 @@ namespace ATMApplication.Services
 
             try
             {
-                card = await cardRepository.GetSingleAsync(card => card.CardNumber == cardNumber);
+                card = await cardRepository.GetSingleAsync(card => card.CardNumber == cardNumber, nameof(Card.Account));
             }
             catch (RepositoryException ex)
             {

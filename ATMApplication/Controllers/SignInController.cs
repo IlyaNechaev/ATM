@@ -56,12 +56,8 @@ namespace ATMApplication.Controllers
 
                 return BadRequest(ModelState);
             }
-
-            // Аутентификация пользователя
-            (_, var user) = await UserService.GetLogInUser(model.Login, model.Password);
-            var token = SignInManager.LogIn().UsingJWT(user);
-
-            return Ok(new { Token = token });
+            
+            return Ok($"{model.FirstName} успешно {(model.Gender == Gender.MALE ? "зарегистрирован" : "зарегистрирована")}");
         }
 
         [HttpPost("login")]
@@ -102,6 +98,7 @@ namespace ATMApplication.Controllers
             return Ok();
         }
 
+        [HttpPost("/logout")]
         public async Task<IActionResult> Logout()
         {
             await SignInManager.LogOut().UsingClaims(HttpContext);

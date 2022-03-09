@@ -17,7 +17,7 @@ namespace ATMApplication.Services
             RepositoryFactory = repositoryFactory;
         }
 
-        public async Task TransferMoney(BankAccount source, BankAccount dest, decimal sum)
+        public async Task<Transaction> TransferMoney(BankAccount source, BankAccount dest, decimal sum)
         {
             var validationResult = ValidateBankAccountForWithdraw(source, sum);
             if (validationResult.HasErrors)
@@ -41,6 +41,31 @@ namespace ATMApplication.Services
             await BankAccountRepository.UpdateAsync(source);
             await BankAccountRepository.UpdateAsync(dest);
             await TransactionRepository.AddAsync(transaction);
+
+            return transaction;
+        }
+
+        public async Task<Transaction> TransferMoney(BankAccount account, decimal sum, bool deposit = true)
+        {
+            if (!deposit)
+            {
+                var validationResult = ValidateBankAccountForWithdraw(account, sum);
+
+                if (validationResult.HasErrors)
+                {
+                    throw new TransactionException(validationResult.CommonMessages[0]);
+                }
+            }
+
+            var BankAccountRepository = RepositoryFactory.GetRepository<BankAccount>();
+            account.Balance = deposit ? account.Balance + sum : account.Balance - sum;
+            await BankAccountRepository.UpdateAsync(account);
+
+            return new Transaction
+            {
+                AccountReceiver = account,
+                TransactionTime = DateTime.Now
+            };
         }
 
         public async Task<IEnumerable<BankAccount>> GetUserBankAccounts(string userId)
@@ -80,22 +105,6 @@ namespace ATMApplication.Services
                 nameof(BankAccount.Owner));
         }
 
-        public async Task TransferMoney(BankAccount account, decimal sum, bool deposit = true)
-        {
-            if (!deposit)
-            {
-                var validationResult = ValidateBankAccountForWithdraw(account, sum);
-
-                if (validationResult.HasErrors)
-                {
-                    throw new TransactionException(validationResult.CommonMessages[0]);
-                }
-            }
-
-            var BankAccountRepository = RepositoryFactory.GetRepository<BankAccount>();
-            account.Balance = deposit ? account.Balance + sum : account.Balance - sum;
-            await BankAccountRepository.UpdateAsync(account);
-        }
 
         private async Task<string> CreateBankAccountNumber()
         {
